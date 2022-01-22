@@ -15,13 +15,13 @@ public class TransferAggregator {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
+                String sourceId = parts[0];
+                String targetId = parts[1];
                 int amount = Integer.parseInt(parts[2]);
-                if (!data.containsKey(parts[0]))
-                    data.put(parts[0], new TransferPerClient(parts[0]));
-                if (!data.containsKey(parts[1]))
-                    data.put(parts[1], new TransferPerClient(parts[1]));
-                data.get(parts[0]).decrease(amount);
-                data.get(parts[1]).increase(amount);
+                TransferPerClient source = data.computeIfAbsent(sourceId, TransferPerClient::new);
+                TransferPerClient target = data.computeIfAbsent(targetId, TransferPerClient::new);
+                source.decrease(amount);
+                target.increase(amount);
             }
             transfers = new ArrayList<>(data.values());
             transfers.sort(Comparator.comparing(TransferPerClient::getClientId));
